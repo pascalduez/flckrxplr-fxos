@@ -1,0 +1,39 @@
+
+:root {
+  font-size: 62.5%;
+}
+body {
+  background: transparent url(../gaia-shared/resources/branding/official/splash_screen_generic.png) repeat 0 0;
+  margin: 0;
+  padding: 0;
+}
+.status {
+  color: #fff;
+  text-align: center;
+  margin-top: 30vh;
+}
+.status h1 {
+  font-weight: 400;
+}
+body.loaded .status {
+  display: none;
+}
+main {
+  display: block;
+  margin-top: 1px;
+}
+main a, main img {
+  display: block;
+}
+main a {
+  float: left;
+  margin: 0 1px 1px 0;
+  padding: 0;
+}
+main img {
+  opacity: 0;
+  transition: opacity .5s linear;
+}
+main img.loaded {
+  opacity: 1;
+}

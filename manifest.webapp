@@ -1,0 +1,13 @@
+{
+    "version": "0.0.0",
+    "name": "flckrxplr",
+    "launch_path": "/index.html",
+    "description": "A simple flickr explore fxos app.",
+    "icons": {},
+    "developer": {
+        "name": "Pascal Duez",
+        "url": "pascalduez.me"
+    },
+    "installs_allowed_from": ["*"],
+    "default_locale": "en"
+}
