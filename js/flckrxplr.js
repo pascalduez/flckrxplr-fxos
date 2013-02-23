@@ -5,10 +5,11 @@
 
   function fetch() {
     document.body.classList.add("loading");
-    // Testing api key, get reset.
-    var url = "http://api.flickr.com/services/rest/?method=flickr.interestingness.getList&api_key=7340b7ab975eb9e2f609dc9f44a250ff&format=json";
+    var key = "ba40cdef3b366240ebebb25271a955fe";
+    var src = "http://api.flickr.com/services/rest/?method=flickr.interestingness.getList&api_key={key}&format=json";
+    src = src.replace( "{key}", key );
     var script = document.createElement("script");
-    script.setAttribute("src", url);
+    script.setAttribute("src", src);
     document.head.appendChild( script );
   }
 
