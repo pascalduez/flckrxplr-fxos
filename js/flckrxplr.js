@@ -1,9 +1,7 @@
 
 (function( window, document ) {
 
-  window.onload = fetch;
-
-  function fetch() {
+  window.onload = function() {
     document.body.classList.add("loading");
     var key = "ba40cdef3b366240ebebb25271a955fe";
     var src = "http://api.flickr.com/services/rest/?method=flickr.interestingness.getList&api_key={key}&format=json";
