@@ -1,15 +1,15 @@
 
 (function( window, document ) {
 
-  window.onload = function() {
+  document.addEventListener("DOMContentLoaded", function( e ) {
     document.body.classList.add("loading");
     var key = "ba40cdef3b366240ebebb25271a955fe";
     var src = "http://api.flickr.com/services/rest/?method=flickr.interestingness.getList&api_key={key}&format=json";
     src = src.replace( "{key}", key );
     var script = document.createElement("script");
-    script.setAttribute("src", src);
+    script.src = src;
     document.head.appendChild( script );
-  }
+  }, false);
 
   window.jsonFlickrApi = function( data ) {
     var photos = data.photos.photo,
@@ -20,9 +20,9 @@
     for ( ; i < length; i++ ) {
       var img = new Image();
       img.src = buildImgSrc( photos[i] );
-      img.onload = function() {
+      img.addEventListener("load", function( e ) {
         this.classList.add("loaded");
-      };
+      }, false);
 
       var a = document.createElement("a");
       a.href = buildImgUrl( photos[i] );
