@@ -29,12 +29,16 @@
       a.target = "_";
       a.appendChild( img );
 
-      fragment.appendChild( a );
+      var li = document.createElement('li');
+      li.classList.add('thumbnail');
+      li.appendChild( a );
+
+      fragment.appendChild( li );
     }
 
-    var main = document.querySelector("main");
-    main.innerHTML = "";
-    main.appendChild( fragment );
+    var thumbnails = document.getElementById("thumbnails");
+    thumbnails.innerHTML = "";
+    thumbnails.appendChild( fragment );
 
     document.body.classList.remove("loading");
     document.body.classList.add("loaded");
