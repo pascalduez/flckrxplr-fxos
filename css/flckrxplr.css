@@ -16,15 +16,24 @@ body {
   padding: 0;
 }
 body {
-  background: transparent url(../gaia-shared/resources/branding/official/splash_screen_generic.png) repeat 0 0;
+  background: transparent url(../gaia-shared/style/headers/images/ui/organic/pattern.png) repeat 0 0;
 }
 .status {
-  color: #fff;
-  text-align: center;
-  margin-top: 30vh;
+  position: absolute;
+  top: 11px;
+  right: 50px;
+  margin: 0;
 }
-.status h1 {
-  font-weight: 400;
+.status:before {
+  width: 2px;
+  height: 50px;
+  content: "";
+  position: absolute;
+  left: -20px;
+  background: transparent url(../gaia-shared/style/headers/images/ui/organic/separator.png) no-repeat 0 0;
+}
+.status progress:not([value]) {
+  background: transparent url(../gaia-shared/style_unstable/progress_activity/images/ui/dark/default.png) no-repeat 0 0;
 }
 body.loaded .status {
   display: none;
@@ -38,6 +47,7 @@ body.loaded .status {
   width: 100%;
   height: 100%;
   line-height: 0;
+  list-style: none;
   position: absolute;
   left: 0;
   overflow-y: scroll;

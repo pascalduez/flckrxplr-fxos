@@ -1,6 +1,8 @@
 
 (function( window, document ) {
 
+  "use strict";
+
   document.addEventListener("DOMContentLoaded", function( e ) {
     document.body.classList.add("loading");
     var key = "ba40cdef3b366240ebebb25271a955fe";
@@ -29,8 +31,8 @@
       a.target = "_";
       a.appendChild( img );
 
-      var li = document.createElement('li');
-      li.classList.add('thumbnail');
+      var li = document.createElement("li");
+      li.classList.add("thumbnail");
       li.appendChild( a );
 
       fragment.appendChild( li );
