@@ -49,10 +49,11 @@ body.loaded .status {
   line-height: 0;
   list-style: none;
   position: absolute;
+  top: 0;
   left: 0;
   overflow-y: scroll;
   overflow-x: hidden;
-  margin-top: 1px;
+  padding-top: 51px;
 }
 .thumbnail {
   width: calc(100% / 3 - 1px);
