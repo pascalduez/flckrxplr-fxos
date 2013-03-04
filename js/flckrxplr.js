@@ -106,7 +106,6 @@
     thumbnails.appendChild( fragment );
 
     document.body.classList.remove("loading");
-    document.body.classList.add("loaded");
   }
 
 
@@ -158,7 +157,6 @@
   function fetch( params ) {
     let url = rest_url + _parameterString( params );
 
-    document.body.classList.remove("loaded");
     document.body.classList.add("loading");
 
     let xhr = new XMLHttpRequest();
@@ -173,7 +171,6 @@
     xhr.onerror = function() {
       window.alert("fetch error");
       document.body.classList.remove("loading");
-      document.body.classList.add("loaded");
     };
     xhr.open("GET", url, true);
     xhr.send();

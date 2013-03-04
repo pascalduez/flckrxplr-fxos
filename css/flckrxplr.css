@@ -33,10 +33,11 @@ body {
   background: transparent url(../gaia-shared/style/headers/images/ui/organic/separator.png) no-repeat 0 0;
 }
 .status progress:not([value]) {
+  visibility: hidden;
   background: transparent url(../gaia-shared/style_unstable/progress_activity/images/ui/dark/default.png) no-repeat 0 0;
 }
-body.loaded .status {
-  display: none;
+.loading .status progress {
+  visibility: visible;
 }
 #thumbnails,
 .thumbnail {
