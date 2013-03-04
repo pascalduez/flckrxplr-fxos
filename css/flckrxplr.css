@@ -59,6 +59,11 @@ body.loaded .status {
   width: calc(100% / 3 - 1px);
   float: left;
   margin: 0 1px 1px 0;
+  opacity: 0;
+  transition: opacity .8s linear;
+}
+.thumbnail.loaded {
+  opacity: 1;
 }
 @media (min-width: 37.5em) {
   .thumbnail {
@@ -106,9 +111,4 @@ body.loaded .status {
 .thumbnail img {
   width: 100%;
   height: auto;
-  opacity: 0;
-  transition: opacity .8s linear;
-}
-.thumbnail img.loaded {
-  opacity: 1;
 }

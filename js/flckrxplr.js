@@ -7,9 +7,10 @@
   const rest_url = "http://api.flickr.com/services/rest/";
 
   var thumbnails;
-  var photos;
-  var page = 1;
-  var pages;
+  var pages = { current: 1, max: null };
+  var sampleThumb;
+  var triggerMargin;
+  var observer;
 
   var params = {
       "method" : "flickr.interestingness.getList",
@@ -24,42 +25,78 @@
 
   function onDomReady() {
     thumbnails = document.getElementById("thumbnails");
-    _fetch( params );
-    thumbnails.addEventListener("scroll", scrollHandler);
+
+    observer = new MutationObserver(function( mutations ) {
+      mutations.forEach(function( mutation ) {
+        if ( mutation.type === "childList" ) {
+          let nodes = mutation.addedNodes;
+          sampleThumb = nodes[ nodes.length -1 ];
+          sampleThumb.addEventListener("transitionend", function onThumbFadeEnd() {
+            triggerMargin = sampleThumb.clientHeight * 5;
+            thumbnails.addEventListener("scroll", scrollHandler);
+            sampleThumb.removeEventListener("transitionend", onThumbFadeEnd);
+          }, false);
+        }
+      });
+    });
+    observer.observe( thumbnails, { childList: true } );
+
+    // Fetch the first page.
+    fetch( params );
   }
 
   document.addEventListener("DOMContentLoaded", onDomReady, false);
 
+  function onContentEnd() {
+    window.removeEventListener("resize", getRowHeight);
+    thumbnails.removeEventListener("scroll", scrollHandler);
+    observer.disconnect();
+  }
+
   function scrollHandler() {
-    if ( thumbnails.scrollTop >= thumbnails.scrollTopMax ) {
-      if ( ++page > pages ) {
+    // Ignore scrolls while thumbnails is empty.
+    if ( thumbnails.clientHeight === 0 ) {
+      return;
+    }
+    // Start fetching ~5 rows before end of current batch/page.
+    if ( thumbnails.scrollTop > (thumbnails.scrollTopMax - triggerMargin) ) {
+      if ( ++pages.current > pages.max ) {
+        onContentEnd();
         return;
       }
-      params.page = page;
-      _fetch( params );
+      thumbnails.removeEventListener("scroll", scrollHandler);
+      params.page = pages.current;
+      fetch( params );
     }
   }
 
-  function _createThumbnails() {
-    var fragment = document.createDocumentFragment(),
-        length = photos.length,
-        i = 0;
+  function getRowHeight() {
+    triggerMargin = sampleThumb.clientHeight;
+  }
 
-    function addLoaded( e ) {
-      e.target.classList.add("loaded");
+  window.addEventListener("resize", getRowHeight);
+
+  function createThumbnails( photos ) {
+    let fragment = document.createDocumentFragment();
+    let length = photos.length;
+    let i = 0;
+
+    function _addLoaded( e ) {
+      let thumb = e.target.parentNode.parentNode;
+      thumb.classList.add("loaded");
     }
 
     for ( ; i < length; i++ ) {
-      var img = new Image();
+      let img = new Image();
       img.src = photos[ i ].url_q;
-      img.addEventListener("load", addLoaded, false);
+      img.addEventListener("load", _addLoaded, true);
 
-      var a = document.createElement("a");
+      let a = document.createElement("a");
       a.href = _imgUrl( photos[i] );
       a.target = "_";
       a.appendChild( img );
 
-      var li = document.createElement("li");
+      let li = document.createElement("li");
       li.classList.add("thumbnail");
       li.appendChild( a );
 
@@ -72,12 +109,25 @@
     document.body.classList.add("loaded");
   }
 
+
+  function _imgSrc( photo ) {
+    let str = "http://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}_[mstzb].jpg";
+    return str
+      .replace( "{farm-id}", photo.farm )
+      .replace( "{server-id}", photo.server )
+      .replace( "{id}", photo.id )
+      .replace( "{secret}", photo.secret )
+      .replace( "[mstzb]", "q" );
+  }
+
+
   function _imgUrl( photo ) {
-    var str = "http://www.flickr.com/photos/{user-id}/{photo-id}";
+    let str = "http://www.flickr.com/photos/{user-id}/{photo-id}";
     return str
       .replace( "{user-id}", photo.owner )
       .replace( "{photo-id}", photo.id );
   }
+
 
   function _parameterString( params ) {
     let paramsArray = [];
@@ -104,19 +154,20 @@
     return "?" + paramsArray.join("&");
   }
 
-  function _fetch( params ) {
-    var url = rest_url + _parameterString( params );
+
+  function fetch( params ) {
+    let url = rest_url + _parameterString( params );
 
     document.body.classList.remove("loaded");
     document.body.classList.add("loading");
 
-    var xhr = new XMLHttpRequest();
+    let xhr = new XMLHttpRequest();
     xhr.onload = function() {
       if ( xhr.status === 200 ) {
-        var data = JSON.parse( xhr.responseText ).photos;
-        pages = data.pages;
-        photos = data.photo;
-        _createThumbnails();
+        let data = JSON.parse( xhr.responseText ).photos;
+        pages.current = data.page;
+        pages.max = data.pages;
+        createThumbnails( data.photo );
       }
     };
     xhr.onerror = function() {
@@ -127,5 +178,6 @@
     xhr.open("GET", url, true);
     xhr.send();
   }
+
 
 }( this, this.document ));
