@@ -21,7 +21,7 @@ module.exports = function( grunt ) {
     },
     open: {
       server: {
-        url: 'http://localhost:<%= connect.options.port %>'
+        url: "http://localhost:<%= connect.options.port %>"
       }
     },
     regarde: {
@@ -41,7 +41,7 @@ module.exports = function( grunt ) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-open');
+  grunt.loadNpmTasks("grunt-open");
   grunt.loadNpmTasks("grunt-regarde");
   grunt.loadNpmTasks("grunt-contrib-connect");
   grunt.loadNpmTasks("grunt-contrib-livereload");

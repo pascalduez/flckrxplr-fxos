@@ -3,8 +3,8 @@
 
   "use strict";
 
-  const api_key  = "ba40cdef3b366240ebebb25271a955fe";
-  const rest_url = "http://api.flickr.com/services/rest/";
+  const API_KEY  = "ba40cdef3b366240ebebb25271a955fe";
+  const REST_URL = "http://api.flickr.com/services/rest/";
 
   var thumbnails;
   var pages = { current: 1, max: null };
@@ -14,7 +14,7 @@
 
   var params = {
       "method" : "flickr.interestingness.getList",
-     "api_key" : api_key,
+     "api_key" : API_KEY,
         "date" : null,
       "extras" : ["url_q"],
     "per_page" : 100,
@@ -32,7 +32,7 @@
           let nodes = mutation.addedNodes;
           sampleThumb = nodes[ nodes.length -1 ];
           sampleThumb.addEventListener("transitionend", function onThumbFadeEnd() {
-            triggerMargin = sampleThumb.clientHeight * 5;
+            getRowHeight();
             thumbnails.addEventListener("scroll", scrollHandler);
             sampleThumb.removeEventListener("transitionend", onThumbFadeEnd);
           }, false);
@@ -59,7 +59,7 @@
       return;
     }
     // Start fetching ~5 rows before end of current batch/page.
-    if ( thumbnails.scrollTop > (thumbnails.scrollTopMax - triggerMargin) ) {
+    if ( thumbnails.scrollTop > (thumbnails.scrollTopMax - (triggerMargin * 5)) ) {
       if ( ++pages.current > pages.max ) {
         onContentEnd();
         return;
@@ -110,8 +110,7 @@
 
 
   function _imgSrc( photo ) {
-    let str = "http://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}_[mstzb].jpg";
-    return str
+    return "http://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}_[mstzb].jpg"
       .replace( "{farm-id}", photo.farm )
       .replace( "{server-id}", photo.server )
       .replace( "{id}", photo.id )
@@ -121,8 +120,7 @@
 
 
   function _imgUrl( photo ) {
-    let str = "http://www.flickr.com/photos/{user-id}/{photo-id}";
-    return str
+    return "http://www.flickr.com/photos/{user-id}/{photo-id}"
       .replace( "{user-id}", photo.owner )
       .replace( "{photo-id}", photo.id );
   }
@@ -133,29 +131,27 @@
 
     for ( let [key, value] in Iterator(params) ) {
       let encodedValue;
-      if ( value != null ) {
+      if ( value !== null ) {
         if ( Array.isArray( value ) ) {
-          let encodedValueArray = [];
-          value.forEach(function( item ) {
-            encodedValueArray.push(encodeURIComponent(
-              ( item === null || item === undefined) ? "" : item )
+          encodedValue = value.map(function( item ) {
+            return encodeURIComponent(
+              ( item === null || item === undefined ) ? "" : item
             );
-          });
-          encodedValue = encodedValueArray.join(",");
+          }).join(",");
         }
         else {
           encodedValue = encodeURIComponent( value );
         }
-        paramsArray.push(encodeURIComponent( key ) + "=" + encodedValue);
+        paramsArray.push( encodeURIComponent( key ) + "=" + encodedValue );
       }
     }
 
-    return "?" + paramsArray.join("&");
+    return paramsArray.join("&");
   }
 
 
   function fetch( params ) {
-    let url = rest_url + _parameterString( params );
+    let url = [ REST_URL, "?", _parameterString( params ) ].join("");
 
     document.body.classList.add("loading");
 
