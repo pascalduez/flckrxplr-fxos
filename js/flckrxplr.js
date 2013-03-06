@@ -17,7 +17,7 @@
      "api_key" : API_KEY,
         "date" : null,
       "extras" : ["url_q"],
-    "per_page" : 100,
+    "per_page" : 50,
         "page" : 1,
       "format" : "json",
     "nojsoncallback" : "1"
