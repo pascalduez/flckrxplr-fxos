@@ -6,6 +6,9 @@
   const API_KEY  = "ba40cdef3b366240ebebb25271a955fe";
   const REST_URL = "http://api.flickr.com/services/rest/";
 
+  var db = {};
+  var uniqueId = 0;
+
   var thumbnails;
   var pages = { current: 1, max: null };
   var sampleThumb;
@@ -17,25 +20,54 @@
      "api_key" : API_KEY,
         "date" : null,
       "extras" : ["url_q"],
-    "per_page" : 50,
+    "per_page" : 30,
         "page" : 1,
       "format" : "json",
     "nojsoncallback" : "1"
   };
 
+  var views = {
+    "thumbnails": null,
+    "fullscreen": null
+  };
+
+  function $(id) { return document.getElementById(id); }
+
+  function injectTpl( tpl, cb ) {
+    //document.body.appendChild( tpl );
+    tpl.style.display = "block";
+    if (cb) window.setTimeout( cb, 10 );
+    //document.body.appendChild( tpl.content.cloneNode(true) );
+  }
+  function removeTpl( tpl ) {
+    tpl.style.display = "none";
+    //document.body.removeChild( tpl );
+  }
+
   function onDomReady() {
-    thumbnails = document.getElementById("thumbnails");
+    views.thumbnails = $("thumbnails-view");
+    views.fullscreen = $("fullscreen-view");
+
+    injectTpl( views.thumbnails );
+
+    // Temporary Shortcut
+    thumbnails = $("thumbnails");
 
     observer = new MutationObserver(function( mutations ) {
       mutations.forEach(function( mutation ) {
         if ( mutation.type === "childList" ) {
           let nodes = mutation.addedNodes;
-          sampleThumb = nodes[ nodes.length -1 ];
+          sampleThumb = nodes[ nodes.length - 1 ];
+          // if ( !sampleThumb ) {
+          //   sampleThumb = nodes[ 1 ];
+          // }
           sampleThumb.addEventListener("transitionend", function onThumbFadeEnd() {
             getRowHeight();
             thumbnails.addEventListener("scroll", scrollHandler);
             sampleThumb.removeEventListener("transitionend", onThumbFadeEnd);
           }, false);
+
+          //window.addEventListener("resize", getRowHeight);
         }
       });
     });
@@ -76,6 +108,47 @@
 
   window.addEventListener("resize", getRowHeight);
 
+
+  function backBtn() {
+    let backBtn = $("fullscreen-back-button");
+    backBtn.addEventListener("click", function() {
+      views.fullscreen.classList.remove("enabled");
+      views.fullscreen.addEventListener("transitionend", function onFullScreenFadeEnd() {
+        removeTpl( views.fullscreen );
+        views.fullscreen.removeEventListener("transitionend", onFullScreenFadeEnd);
+      }, false);
+    }, false);
+  }
+
+
+  function addFullScreenImg( e ) {
+    let id = e.currentTarget.getAttribute("data-id");
+    //let img = new Image();
+    //
+    //
+    let cachedImg = db[ id ];
+    let src = _imgSrc( cachedImg, "n" );
+    let frame = $("frame2");
+    frame.style.backgroundImage = 'url("' + src + '")';
+
+
+    // let cachedImg = db[ id - 1 ];
+    // let src = _imgSrc( cachedImg, "z" );
+    // let frame1 = $("frame1");
+    // frame1.style.backgroundImage = 'url("' + src + '")';
+
+    // cachedImg = db[ id ];
+    // src = _imgSrc( cachedImg, "z" );
+    // let frame2 = $("frame2");
+    // frame2.style.backgroundImage = 'url("' + src + '")';
+
+    // cachedImg = db[ id + 1 ];
+    // src = _imgSrc( cachedImg, "z" );
+    // let frame3 = $("frame3");
+    // frame3.style.backgroundImage = 'url("' + src + '")';
+  }
+
+
   function createThumbnails( photos ) {
     let fragment = document.createDocumentFragment();
     let length = photos.length;
@@ -86,14 +159,25 @@
       thumb.classList.add("loaded");
     }
 
+    function _onClick( e ) {
+      e.preventDefault();
+      injectTpl( views.fullscreen, function() {
+        views.fullscreen.classList.add("enabled");
+      });
+      addFullScreenImg( e );
+      backBtn();
+    }
+
     for ( ; i < length; i++ ) {
       let img = new Image();
       img.src = photos[ i ].url_q;
       img.addEventListener("load", _addLoaded, true);
 
       let a = document.createElement("a");
+      a.setAttribute("data-id", photos[ i ]["uniqueId"]);
       a.href = _imgUrl( photos[i] );
-      a.target = "_";
+      // a.target = "_";
+      a.addEventListener("click", _onClick, false);
       a.appendChild( img );
 
       let li = document.createElement("li");
@@ -109,13 +193,13 @@
   }
 
 
-  function _imgSrc( photo ) {
+  function _imgSrc( photo, size ) {
     return "http://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}_[mstzb].jpg"
       .replace( "{farm-id}", photo.farm )
       .replace( "{server-id}", photo.server )
       .replace( "{id}", photo.id )
       .replace( "{secret}", photo.secret )
-      .replace( "[mstzb]", "q" );
+      .replace( "[mstzb]", size );
   }
 
 
@@ -150,6 +234,17 @@
   }
 
 
+  function pushToDb( data ) {
+    for ( let item in data.photo ) {
+      ++uniqueId;
+      let photo = data.photo[ item ];
+      db[ uniqueId ] = photo;
+      db[ uniqueId ]["uniqueId"] = uniqueId;
+    }
+    // console.log(db);
+  }
+
+
   function fetch( params ) {
     let url = [ REST_URL, "?", _parameterString( params ) ].join("");
 
@@ -159,6 +254,7 @@
     xhr.onload = function() {
       if ( xhr.status === 200 ) {
         let data = JSON.parse( xhr.responseText ).photos;
+        pushToDb( data );
         pages.current = data.page;
         pages.max = data.pages;
         createThumbnails( data.photo );

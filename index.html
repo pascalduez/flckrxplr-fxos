@@ -11,7 +11,8 @@
     <script type="application/javascript;version=1.8" src="js/flckrxplr.js"></script>
   </head>
   <body role="application">
-    <section role="region" class="skin-dark">
+
+    <section role="region" id="thumbnails-view" class="skin-dark">
       <header aria-level="1">
         <h1>flickr explore</h1>
         <p class="status">
@@ -22,5 +23,20 @@
         <ul id="thumbnails"></ul>
       </main>
     </section>
+
+    <section role="region" id="fullscreen-view" class="view">
+      <div id="frames">
+        <div id="frame1" class="frame"></div>
+        <div id="frame2" class="frame"></div>
+        <div id="frame3" class="frame"></div>
+      </div>
+
+      <footer id="fullscreen-toolbar">
+        <a id="fullscreen-back-button"
+           class="button"
+           href="#">&times;</a>
+      </footer>
+    </section>
+
   </body>
 </html>
